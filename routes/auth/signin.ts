@@ -10,6 +10,8 @@ export const handler: Handlers = {
     const { uri, codeVerifier } = await oauth2Client.code
       .getAuthorizationUri({ state });
     setOauthSession(oauthSession, { state, codeVerifier });
+    console.log("AUTH", state);
+    console.log("Redirecting to:", uri.href);
     const resp = new Response("Redirecting...", {
       headers: {
         Location: uri.href,

@@ -2,33 +2,41 @@ import { HandlerContext, PageProps } from "$fresh/server.ts";
 import { Head } from "$fresh/runtime.ts";
 
 import { Game, State, User } from "🛠️/types.ts";
-import { getGame, getUserBySession } from "🛠️/db.ts";
-
 import { Header } from "🧱/Header.tsx";
+import { getGame, getUserBySession } from "🛠️/db.ts";
 import GameDisplay from "🏝️/GameDisplay.tsx";
-
 interface Data {
   game: Game;
-  user: User | null;
+  user: User;
 }
 
 export async function handler(req: Request, ctx: HandlerContext<Data, State>) {
-  const [game, user] = await Promise.all([
+    console.log('BEFORE HELLO', ctx.data, ctx.state.session);
+    const [game, user] = await Promise.all([
     getGame(ctx.params.id),
     getUserBySession(ctx.state.session ?? ""),
   ]);
-  if (!game) return ctx.renderNotFound();
 
-  return ctx.render({ game, user });
+  console.log('HELLO', user, game);
+  if (!user) {
+    return new Response("User not found", { status: 404 });
+  }
+  if(!game) return null;
+
+  // Return render with real game and user
+  return ctx.render({
+    user,
+    game
+  });
 }
 
 export default function Home(props: PageProps<Data>) {
-  const { game, user } = props.data;
+  const { user, game } = props.data;
   return (
     <>
       <Head>
         <title>
-          {game.initiator.login} vs {game.opponent.login} | Tic-Tac-Toe
+          Rock, Paper, Scissors!
         </title>
       </Head>
       <div class="px-4 py-8 mx-auto max-w-screen-md">

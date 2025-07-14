@@ -33,4 +33,20 @@ export interface Game {
   grid: GameGrid;
   startedAt: Date;
   lastMoveAt: Date;
+  initiatorChoice?: Choice;
+  opponentChoice?: Choice;
+  result?: "win" | "lose" | "draw";
+  state?: "in_progress" | "finished";
 }
+
+export interface GameRpS {
+  id: string;
+  startedAt: Date;
+  lastMoveAt: Date;
+  initiatorChoice?: Choice;
+  opponentChoice?: Choice;
+  result?: "win" | "lose" | "draw";
+  state?: "in_progress" | "finished";
+}
+
+export type Choice = "rock" | "paper" | "scissors";

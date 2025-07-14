@@ -31,7 +31,7 @@ export const handler: Handlers<undefined, State> = {
     if (!initiatorUser) return new Response("Not logged in", { status: 401 });
     if (!opponentUser) {
       return new Response(
-        "Opponent user has not signed up yet. Ask them to sign in to TicTacToe to play against you.",
+        "Opponent user has not signed up yet. Ask them to sign in to Rock, Paper, Scissors! to play against you.",
         { status: 400 },
       );
     }

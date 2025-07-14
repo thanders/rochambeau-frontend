@@ -6,16 +6,21 @@ import * as $_app from "./routes/_app.tsx";
 import * as $_middleware from "./routes/_middleware.tsx";
 import * as $api_events_game from "./routes/api/events/game.ts";
 import * as $api_events_games from "./routes/api/events/games.ts";
+import * as $api_make_move from "./routes/api/make-move.ts";
+import * as $api_make_opponent_move from "./routes/api/make-opponent-move.ts";
 import * as $api_place from "./routes/api/place.ts";
+import * as $api_user_stats from "./routes/api/user-stats.ts";
 import * as $auth_oauth2callback from "./routes/auth/oauth2callback.ts";
 import * as $auth_signin from "./routes/auth/signin.ts";
 import * as $auth_signout from "./routes/auth/signout.ts";
+import * as $dev_add_mock_user from "./routes/dev/add-mock-user.ts";
 import * as $game_id_ from "./routes/game/[id].tsx";
 import * as $index from "./routes/index.tsx";
 import * as $start from "./routes/start.tsx";
+import * as $CountDown from "./islands/CountDown.tsx";
 import * as $GameDisplay from "./islands/GameDisplay.tsx";
 import * as $GamesList from "./islands/GamesList.tsx";
-import { type Manifest } from "$fresh/server.ts";
+import type { Manifest } from "$fresh/server.ts";
 
 const manifest = {
   routes: {
@@ -23,15 +28,20 @@ const manifest = {
     "./routes/_middleware.tsx": $_middleware,
     "./routes/api/events/game.ts": $api_events_game,
     "./routes/api/events/games.ts": $api_events_games,
+    "./routes/api/make-move.ts": $api_make_move,
+    "./routes/api/make-opponent-move.ts": $api_make_opponent_move,
     "./routes/api/place.ts": $api_place,
+    "./routes/api/user-stats.ts": $api_user_stats,
     "./routes/auth/oauth2callback.ts": $auth_oauth2callback,
     "./routes/auth/signin.ts": $auth_signin,
     "./routes/auth/signout.ts": $auth_signout,
+    "./routes/dev/add-mock-user.ts": $dev_add_mock_user,
     "./routes/game/[id].tsx": $game_id_,
     "./routes/index.tsx": $index,
     "./routes/start.tsx": $start,
   },
   islands: {
+    "./islands/CountDown.tsx": $CountDown,
     "./islands/GameDisplay.tsx": $GameDisplay,
     "./islands/GamesList.tsx": $GamesList,
   },

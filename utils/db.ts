@@ -1,8 +1,3 @@
-/**
- * This module implements the DB layer for the Tic Tac Toe game. It uses Deno's
- * key-value store to store data and perform real-time synchronization between clients.
- */
-
 import { Game, OauthSession, User } from "./types.ts";
 
 const kv = await Deno.openKv();
@@ -40,6 +35,7 @@ export async function getUserById(id: string) {
 }
 
 export async function getUserByLogin(login: string) {
+  console.log('USER BY LOGIN ', login);
   const res = await kv.get<User>(["users_by_login", login]);
   return res.value;
 }
@@ -58,6 +54,32 @@ export async function listRecentlySignedInUsers(): Promise<User[]> {
     users.push(value);
   }
   return users;
+}
+
+export async function addMockUserOnline(user: User) {
+  const now = new Date().toISOString();
+  await kv.atomic()
+    .set(["users", user.id], user)
+    .set(["users_by_login", user.login], user)
+    .set(["users_by_last_signin", now, user.id], user)
+    .commit();
+}
+
+export async function addMockUserOnlineTest(user: User) {
+  const now = new Date().toISOString();
+  // Generate a unique session ID for this mock user
+  const mockSessionId = `mock_session_${user.id}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; // More robust ID
+
+  await kv.atomic()
+    .set(["users", user.id], user) // Store the user object by its ID
+    .set(["users_by_login", user.login], user) // Store user by login
+    .set(["users_by_last_signin", now, user.id], user) // Track last sign-in
+    // CRUCIAL: Store the mapping from the mockSessionId to the user object
+    .set(["users_by_session", mockSessionId], user)
+    .commit();
+
+  // Return the generated mock session ID
+  return mockSessionId;
 }
 
 export async function setGame(game: Game, versionstamp?: string) {
@@ -79,14 +101,24 @@ export async function listGamesByPlayer(userId: string): Promise<Game[]> {
   const games: Game[] = [];
   const iter = kv.list<Game>({ prefix: ["games_by_user", userId] });
   for await (const { value } of iter) {
+    if (value.state !== "finished") { games.push(value); } 
+  }
+  return games;
+}
+
+export async function getAllGamesByPlayerForStats(userId: string): Promise<Game[]> {
+  const games: Game[] = [];
+  const iter = kv.list<Game>({ prefix: ["games_by_user", userId] });
+  for await (const { value } of iter) {
     games.push(value);
   }
   return games;
 }
 
-export async function getGame(id: string) {
-  const res = await kv.get<Game>(["games", id]);
-  return res.value;
+export async function getGame(id: string): Promise<Game | null> {
+  const responseGame = await kv.get<Game>(["games", id]);
+  if(!responseGame) return null;
+  return responseGame.value;
 }
 
 export async function getGameWithVersionstamp(id: string) {

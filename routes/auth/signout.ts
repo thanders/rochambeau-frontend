@@ -12,7 +12,7 @@ export const handler: Handlers<undefined, State> = {
       },
       status: 307,
     });
-    deleteCookie(resp.headers, "session");
+    deleteCookie(resp.headers, "session", { path: "/" });
     return resp;
   },
 };

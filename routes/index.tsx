@@ -3,6 +3,7 @@ import { Head } from "$fresh/runtime.ts";
 
 import { Game, State, User } from "🛠️/types.ts";
 import {
+getAllGamesByPlayerForStats,
   getUserBySession,
   listGamesByPlayer,
   listRecentlySignedInUsers,
@@ -20,27 +21,34 @@ interface SignedInData {
   user: User;
   users: User[];
   games: Game[];
+  allGamesForStats: Game[];
 }
 
 export async function handler(req: Request, ctx: HandlerContext<Data, State>) {
+  console.log("Home handler - ctx.state.session:", ctx.state.session);
   if (!ctx.state.session) return ctx.render(null);
 
-  const [user, users] = await Promise.all([
-    getUserBySession(ctx.state.session),
-    listRecentlySignedInUsers(),
-  ]);
+
+  const user = await getUserBySession(ctx.state.session);
   if (!user) return ctx.render(null);
 
-  const games = await listGamesByPlayer(user.id);
+  const [ users, allGamesForStats, games] = await Promise.all([
+    listRecentlySignedInUsers(),
+    getAllGamesByPlayerForStats(user.id),
+    listGamesByPlayer(user.id)
+  ]);
 
-  return ctx.render({ user, users, games });
+  return ctx.render({
+    user, users, games,
+    allGamesForStats
+  });
 }
 
 export default function Home(props: PageProps<Data>) {
   return (
     <>
       <Head>
-        <title>Tic-Tac-Toe</title>
+        <title>Rock, Paper, Scissors!</title>
       </Head>
       <div class="px-4 py-8 mx-auto max-w-screen-md">
         <Header user={props.data?.user ?? null} />
@@ -54,16 +62,16 @@ function SignedIn(props: SignedInData) {
   const otherUsers = props.users.filter((u) => u.id != props.user.id);
   return (
     <>
-      <GamesList games={props.games} user={props.user} />
+      <GamesList games={props.games} user={props.user} allGamesForStats={props.allGamesForStats} />
       <p class="my-6">
-        Challenge someone to a game of Tic-Tac-Toe! Just enter their GitHub
+        Challenge someone to a game of Rock, Paper Scissors. Just enter their GitHub
         username in the box below and click "Start Game".
       </p>
       <form action="/start" method="POST">
         <input
           type="text"
           name="opponent"
-          placeholder="@monalisa"
+          placeholder="@johnsmith"
           class="w-full px-4 py-2 border border-gray-300 rounded-md flex-1"
           required
         />
@@ -112,8 +120,8 @@ function SignedOut() {
   return (
     <>
       <p class="my-6">
-        Welcome to the Deno Tic-Tac-Toe game! You can log in with your GitHub
-        account below to challenge others to a game of Tic-Tac-Toe.
+        Welcome to the Rock, Paper, Scissors game! You can log in with your GitHub
+        account below to challenge others to a game of Rock, Paper, Scissors.
       </p>
       <p class="my-6">
         <ButtonLink href="/auth/signin">

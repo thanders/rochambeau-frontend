@@ -20,7 +20,7 @@ export function UserNameHorizontal(props: { class?: string; user: User }) {
         {props.user.name || `@${props.user.login}`}
       </span>
       {props.user.name && (
-        <span class="text-gray-600">{" "}(@{props.user.login})</span>
+        <span class="text-gray-600"> (@{props.user.login})</span>
       )}
     </span>
   );

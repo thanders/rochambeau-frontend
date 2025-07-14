@@ -3,13 +3,13 @@ import { tw } from "twind";
 import { css, keyframes } from "twind/css";
 
 import { Game, User } from "🛠️/types.ts";
-import { analyzeGame, GameStateInProgress } from "🛠️/game.ts";
+import { GameStateInProgress } from "🛠️/game.ts";
 import { useDataSubscription } from "🛠️/hooks.ts";
 
 import { UserNameHorizontal } from "🧱/User.tsx";
 import { ButtonLink, ButtonLinkMovingRainbow } from "🧱/Button.tsx";
 
-export default function GameList(props: { games: Game[]; user: User }) {
+export default function GameList(props: { games: Game[]; user: User; allGamesForStats: Game[] }) {
   const [games, setGames] = useState(() =>
     props.games.map((g) => ({
       ...g,
@@ -17,6 +17,7 @@ export default function GameList(props: { games: Game[]; user: User }) {
       lastMoveAt: new Date(g.lastMoveAt),
     }))
   );
+
 
   useDataSubscription(() => {
     const eventSource = new EventSource(`/api/events/games`);
@@ -31,11 +32,8 @@ export default function GameList(props: { games: Game[]; user: User }) {
     return () => eventSource.close();
   }, []);
 
-  const analyzedGames = games.map((game) => ({
-    ...game,
-    ...analyzeGame(game),
-  }));
-  const activeGames = analyzedGames.filter((g) =>
+
+  const activeGames = games.filter((g) =>
     g.state === "in_progress"
   ) as (Game & GameStateInProgress)[];
   // sort by whose turn it is (current user's turn first) and then by last move time (oldest first)
@@ -46,13 +44,14 @@ export default function GameList(props: { games: Game[]; user: User }) {
     if (!aIsMyTurn && bIsMyTurn) return 1;
     return b.lastMoveAt.getTime() - a.lastMoveAt.getTime();
   });
-  const wins =
-    analyzedGames.filter((g) => g.state === "win" && g.winner === props.user.id)
+
+const wins =
+    props.allGamesForStats.filter((g) => g.result === "win")
       .length;
   const losses =
-    analyzedGames.filter((g) => g.state === "win" && g.winner !== props.user.id)
+    props.allGamesForStats.filter((g) => g.result === "lose")
       .length;
-  const ties = analyzedGames.filter((g) => g.state === "tie").length;
+  const ties = props.allGamesForStats.filter((g) => g.result === "draw").length;
 
   return (
     <div class="my-6 grid grid-cols-1 sm:grid-cols-4 gap-4">
