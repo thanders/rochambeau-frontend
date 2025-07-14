@@ -14,38 +14,15 @@ export interface OauthSession {
   codeVerifier: string;
 }
 
-export type GameGrid = [
-  string | null,
-  string | null,
-  string | null,
-  string | null,
-  string | null,
-  string | null,
-  string | null,
-  string | null,
-  string | null,
-];
-
 export interface Game {
   id: string;
   initiator: User;
   opponent: User;
-  grid: GameGrid;
   startedAt: Date;
   lastMoveAt: Date;
   initiatorChoice?: Choice;
   opponentChoice?: Choice;
-  result?: "win" | "lose" | "draw";
-  state?: "in_progress" | "finished";
-}
-
-export interface GameRpS {
-  id: string;
-  startedAt: Date;
-  lastMoveAt: Date;
-  initiatorChoice?: Choice;
-  opponentChoice?: Choice;
-  result?: "win" | "lose" | "draw";
+  result?: "initiator_wins" | "opponent_wins" | "draw";
   state?: "in_progress" | "finished";
 }
 

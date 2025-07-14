@@ -43,16 +43,17 @@ export const handler: Handlers<undefined, State> = {
       id: Math.random().toString(36).slice(2),
       initiator: initiatorUser,
       opponent: opponentUser,
-      grid: [null, null, null, null, null, null, null, null, null],
       startedAt: new Date(),
       lastMoveAt: new Date(),
+      state: "in_progress",
     };
     await setGame(game);
 
     return new Response(null, {
-      status: 302,
+      status: 307,
       headers: {
         "Location": `/game/${game.id}`,
+        "Access-Control-Expose-Headers": "Location",
       },
     });
   },

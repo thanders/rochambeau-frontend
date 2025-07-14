@@ -1,3 +1,4 @@
 .env
 # Fresh build directory
 _fresh/
+_fresh_prod/

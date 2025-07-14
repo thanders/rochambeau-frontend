@@ -33,25 +33,32 @@ export default function GameList(props: { games: Game[]; user: User; allGamesFor
   }, []);
 
 
-  const activeGames = games.filter((g) =>
-    g.state === "in_progress"
-  ) as (Game & GameStateInProgress)[];
-  // sort by whose turn it is (current user's turn first) and then by last move time (oldest first)
-  activeGames.sort((a, b) => {
-    const aIsMyTurn = a.turn === props.user.id;
-    const bIsMyTurn = b.turn === props.user.id;
-    if (aIsMyTurn && !bIsMyTurn) return -1;
-    if (!aIsMyTurn && bIsMyTurn) return 1;
-    return b.lastMoveAt.getTime() - a.lastMoveAt.getTime();
-  });
+  const activeGames = games as (Game & GameStateInProgress)[];
 
-const wins =
-    props.allGamesForStats.filter((g) => g.result === "win")
-      .length;
-  const losses =
-    props.allGamesForStats.filter((g) => g.result === "lose")
-      .length;
-  const ties = props.allGamesForStats.filter((g) => g.result === "draw").length;
+  // MODIFIED: Added filter for game.state === "finished" to all calculations
+  const finishedGames = props.allGamesForStats.filter(game => game.state === "finished");
+
+  const wins = finishedGames.filter((game) => {
+    // A win for the current user means:
+    // 1. The game result is 'initiator_wins' AND the current user is the initiator, OR
+    // 2. The game result is 'opponent_wins' AND the current user is the opponent.
+    return (
+      (game.result === "initiator_wins" && props.user.id === game.initiator.id) ||
+      (game.result === "opponent_wins" && props.user.id === game.opponent.id)
+    );
+  }).length;
+
+  const losses = finishedGames.filter((game) => {
+    // A loss for the current user means:
+    // 1. The game result is 'initiator_wins' AND the current user is the opponent, OR
+    // 2. The game result is 'opponent_wins' AND the current user is the initiator.
+    return (
+      (game.result === "initiator_wins" && props.user.id === game.opponent.id) ||
+      (game.result === "opponent_wins" && props.user.id === game.initiator.id)
+    );
+  }).length;
+
+  const ties = finishedGames.filter((g) => g.result === "draw").length;
 
   return (
     <div class="my-6 grid grid-cols-1 sm:grid-cols-4 gap-4">
@@ -132,7 +139,7 @@ function GameListItem(
     ? game.opponent
     : game.initiator;
 
-  const currentPlayersTurn = currentUser.id == game.turn;
+  const currentPlayersTurn = currentUser.id == game.pendingPlayerId;
 
   const state = currentPlayersTurn ? "Your Turn" : "Opponent's Turn";
 
@@ -155,7 +162,7 @@ function GameListItem(
           {state}
         </p>
       </div>
-      {currentUser.id == game.turn
+      {currentUser.id == game.pendingPlayerId
         ? (
           <ButtonLinkMovingRainbow href={`/game/${game.id}`}>
             Make Move!

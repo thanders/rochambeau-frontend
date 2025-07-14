@@ -8,7 +8,6 @@ import * as $api_events_game from "./routes/api/events/game.ts";
 import * as $api_events_games from "./routes/api/events/games.ts";
 import * as $api_make_move from "./routes/api/make-move.ts";
 import * as $api_make_opponent_move from "./routes/api/make-opponent-move.ts";
-import * as $api_place from "./routes/api/place.ts";
 import * as $api_user_stats from "./routes/api/user-stats.ts";
 import * as $auth_oauth2callback from "./routes/auth/oauth2callback.ts";
 import * as $auth_signin from "./routes/auth/signin.ts";
@@ -30,7 +29,6 @@ const manifest = {
     "./routes/api/events/games.ts": $api_events_games,
     "./routes/api/make-move.ts": $api_make_move,
     "./routes/api/make-opponent-move.ts": $api_make_opponent_move,
-    "./routes/api/place.ts": $api_place,
     "./routes/api/user-stats.ts": $api_user_stats,
     "./routes/auth/oauth2callback.ts": $auth_oauth2callback,
     "./routes/auth/signin.ts": $auth_signin,

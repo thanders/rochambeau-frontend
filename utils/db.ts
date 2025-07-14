@@ -12,6 +12,7 @@ export async function getAndDeleteOauthSession(
 }
 
 export async function setOauthSession(session: string, value: OauthSession) {
+  console.log("set 0auth_session", session, value)
   await kv.set(["oauth_sessions", session], value);
 }
 
@@ -35,7 +36,6 @@ export async function getUserById(id: string) {
 }
 
 export async function getUserByLogin(login: string) {
-  console.log('USER BY LOGIN ', login);
   const res = await kv.get<User>(["users_by_login", login]);
   return res.value;
 }
@@ -101,7 +101,7 @@ export async function listGamesByPlayer(userId: string): Promise<Game[]> {
   const games: Game[] = [];
   const iter = kv.list<Game>({ prefix: ["games_by_user", userId] });
   for await (const { value } of iter) {
-    if (value.state !== "finished") { games.push(value); } 
+    if (value.state === "in_progress") { games.push(value); } 
   }
   return games;
 }

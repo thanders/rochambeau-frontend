@@ -25,9 +25,7 @@ interface SignedInData {
 }
 
 export async function handler(req: Request, ctx: HandlerContext<Data, State>) {
-  console.log("Home handler - ctx.state.session:", ctx.state.session);
   if (!ctx.state.session) return ctx.render(null);
-
 
   const user = await getUserBySession(ctx.state.session);
   if (!user) return ctx.render(null);

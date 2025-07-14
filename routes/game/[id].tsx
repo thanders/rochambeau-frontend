@@ -11,17 +11,21 @@ interface Data {
 }
 
 export async function handler(req: Request, ctx: HandlerContext<Data, State>) {
-    console.log('BEFORE HELLO', ctx.data, ctx.state.session);
     const [game, user] = await Promise.all([
     getGame(ctx.params.id),
     getUserBySession(ctx.state.session ?? ""),
   ]);
 
-  console.log('HELLO', user, game);
+    console.log("[/game/:id handler] Fetched game:", game);
+  console.log("[/game/:id handler] Fetched user:", user ? user.login : "N/A");
+
   if (!user) {
     return new Response("User not found", { status: 404 });
   }
-  if(!game) return null;
+  
+  if (!game) {
+    return new Response("Game not found", { status: 404 });
+  }
 
   // Return render with real game and user
   return ctx.render({
@@ -41,7 +45,7 @@ export default function Home(props: PageProps<Data>) {
       </Head>
       <div class="px-4 py-8 mx-auto max-w-screen-md">
         <Header user={user} />
-        <GameDisplay game={game} user={user} />
+        <GameDisplay key={game.id} game={game} user={user} />
       </div>
     </>
   );
