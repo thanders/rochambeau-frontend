@@ -8,10 +8,19 @@ export default {
       "0%": { backgroundPosition: "0% 50%" },
       "100%": { backgroundPosition: "100% 50%" },
     },
-    '.rainbow-highlight': {
-      background: 'linear-gradient(to right, #ff008022, #ff3d4d22, #ff684422, #ff8c0022, #f1c40f22, #2ecc7122, #3498db22, #8e44ad22, #ff008022, #ff008022)',
-      backgroundSize: '2000% 100%',
-      animation: 'rainbowBackgroundKeyframes 7s linear infinite',
+    ".rainbow-highlight": {
+      background:
+        "linear-gradient(to right, #ff008022, #ff3d4d22, #ff684422, #ff8c0022, #f1c40f22, #2ecc7122, #3498db22, #8e44ad22, #ff008022, #ff008022)",
+      backgroundSize: "2000% 100%",
+      animation: "rainbowBackgroundKeyframes 7s linear infinite",
+    },
+    "@keyframes toast-slide-in": {
+      "from": { opacity: "0", transform: "translateY(20px)" },
+      "to": { opacity: "1", transform: "translateY(0)" },
+    },
+    "@keyframes toast-slide-out": {
+      "from": { opacity: "1", transform: "translateY(0)" },
+      "to": { opacity: "0", transform: "translateY(20px)" },
     },
   }),
 } satisfies Options;

@@ -1,59 +1,32 @@
-import { useState } from "preact/hooks";
 import { tw } from "twind";
-import { css, keyframes } from "twind/css";
 
 import { Game, User } from "🛠️/types.ts";
 import { GameStateInProgress } from "🛠️/game.ts";
-import { useDataSubscription } from "🛠️/hooks.ts";
 
 import { UserNameHorizontal } from "🧱/User.tsx";
-import { ButtonLink, ButtonLinkMovingRainbow } from "🧱/Button.tsx";
+import { Button } from "🧱/Button.tsx";
 
-export default function GameList(props: { games: Game[]; user: User; allGamesForStats: Game[] }) {
-  const [games, setGames] = useState(() =>
-    props.games.map((g) => ({
-      ...g,
-      startedAt: new Date(g.startedAt),
-      lastMoveAt: new Date(g.lastMoveAt),
-    }))
+export default function GameList(
+  props: { games: Game[]; user: User; allGamesForStats: Game[] },
+) {
+  const activeGames = props.games as (Game & GameStateInProgress)[];
+
+  const finishedGames = props.allGamesForStats.filter((game) =>
+    game.state === "finished"
   );
 
-
-  useDataSubscription(() => {
-    const eventSource = new EventSource(`/api/events/games`);
-    eventSource.onmessage = (e) => {
-      const games = JSON.parse(e.data);
-      setGames(games.map((g: Game) => ({
-        ...g,
-        startedAt: new Date(g.startedAt),
-        lastMoveAt: new Date(g.lastMoveAt),
-      })));
-    };
-    return () => eventSource.close();
-  }, []);
-
-
-  const activeGames = games as (Game & GameStateInProgress)[];
-
-  // MODIFIED: Added filter for game.state === "finished" to all calculations
-  const finishedGames = props.allGamesForStats.filter(game => game.state === "finished");
-
   const wins = finishedGames.filter((game) => {
-    // A win for the current user means:
-    // 1. The game result is 'initiator_wins' AND the current user is the initiator, OR
-    // 2. The game result is 'opponent_wins' AND the current user is the opponent.
     return (
-      (game.result === "initiator_wins" && props.user.id === game.initiator.id) ||
+      (game.result === "initiator_wins" &&
+        props.user.id === game.initiator.id) ||
       (game.result === "opponent_wins" && props.user.id === game.opponent.id)
     );
   }).length;
 
   const losses = finishedGames.filter((game) => {
-    // A loss for the current user means:
-    // 1. The game result is 'initiator_wins' AND the current user is the opponent, OR
-    // 2. The game result is 'opponent_wins' AND the current user is the initiator.
     return (
-      (game.result === "initiator_wins" && props.user.id === game.opponent.id) ||
+      (game.result === "initiator_wins" &&
+        props.user.id === game.opponent.id) ||
       (game.result === "opponent_wins" && props.user.id === game.initiator.id)
     );
   }).length;
@@ -119,17 +92,6 @@ export default function GameList(props: { games: Game[]; user: User; allGamesFor
   );
 }
 
-const rainbowBackgroundKeyframes = keyframes({
-  "0%": { backgroundPosition: "0% 50%" },
-  "100%": { backgroundPosition: "100% 50%" },
-});
-const rainbowBackground = css`
-background: linear-gradient(to right, 
-  #ff008022, #ff3d4d22, #ff684422, #ff8c0022, #f1c40f22, #2ecc7122, #3498db22, #8e44ad22, #ff008022, #ff008022);
-background-size: 2000% 100%;
-animation: ${rainbowBackgroundKeyframes} 7s linear infinite;
-`;
-
 function GameListItem(
   props: { currentUser: User; game: Game & GameStateInProgress },
 ) {
@@ -139,17 +101,19 @@ function GameListItem(
     ? game.opponent
     : game.initiator;
 
-const isCurrentUserInitiator = currentUser.id === game.initiator.id;
+  const isCurrentUserInitiator = currentUser.id === game.initiator.id;
 
-const myChoice = isCurrentUserInitiator ? game.initiatorChoice : game.opponentChoice;
+  const myChoice = isCurrentUserInitiator
+    ? game.initiatorChoice
+    : game.opponentChoice;
 
-  const gameMoveText = myChoice ? "Waiting for Opponent": "Make a move";
+  const gameMoveText = myChoice ? "Waiting for Opponent" : "Make a move";
 
   return (
     <li
       class={tw`flex items-center ${
-        isCurrentUserInitiator && game.initiatorChoice && rainbowBackground
-      } px-4 py-2 border-t`}
+        isCurrentUserInitiator && game.initiatorChoice
+      } px-3 py-2 border-t`}
     >
       <img
         class="w-8 h-8 mr-2 rounded-full"
@@ -165,10 +129,11 @@ const myChoice = isCurrentUserInitiator ? game.initiatorChoice : game.opponentCh
         </p>
       </div>
       {myChoice
-        ?  <ButtonLink href={`/game/${game.id}`}>Observe</ButtonLink> : (
-          <ButtonLinkMovingRainbow href={`/game/${game.id}`}>
+        ? <Button variant="primary" href={`/game/${game.id}`}>View</Button>
+        : (
+          <Button variant="success" href={`/game/${game.id}`}>
             Make Move!
-          </ButtonLinkMovingRainbow>
+          </Button>
         )}
     </li>
   );

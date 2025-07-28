@@ -1,7 +1,7 @@
-import { useState, useEffect } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 
 interface CountdownProps {
-  start?: number;         // number to count down from (default 3)
+  start?: number; // number to count down from (default 3)
   onComplete?: () => void; // callback when countdown finishes
 }
 

@@ -4,7 +4,7 @@ import twindConfig from "./twind.config.ts";
 
 export default defineConfig({
   plugins: [
-    twindPlugin(twindConfig)
+    twindPlugin(twindConfig),
   ],
   build: {
     outDir: "./_fresh_prod", // Custom output directory if desired

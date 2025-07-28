@@ -5,7 +5,8 @@
     "jsr:@std/bytes@^1.0.2": "1.0.6",
     "jsr:@std/encoding@^1.0.5": "1.0.10",
     "jsr:@std/internal@^1.0.9": "1.0.9",
-    "jsr:@std/path@^1.0.6": "1.1.1"
+    "jsr:@std/path@^1.0.6": "1.1.1",
+    "jsr:@valibot/valibot@^1.1.0": "1.1.0"
   },
   "jsr": {
     "@luca/esbuild-deno-loader@0.11.0": {
@@ -30,6 +31,9 @@
       "dependencies": [
         "jsr:@std/internal"
       ]
+    },
+    "@valibot/valibot@1.1.0": {
+      "integrity": "2617f02b532011b8140926899d420a3e1bbb0fcb7cdf8e7b669df89e7edd7f5f"
     }
   },
   "redirects": {
@@ -419,5 +423,10 @@
     "https://esm.sh/twind@0.16.19/denonext/sheets.mjs": "26c1aabb09751f0dedf9d1419d8e2e3e5996ef9fc192f5d3160a4062937d5053",
     "https://esm.sh/twind@0.16.19/denonext/twind.mjs": "fa5076812b8d3fed2299cff30dba4344cbe58825751b429c9f0a3a70868e94bc",
     "https://esm.sh/twind@0.16.19/sheets": "92a397a7f283e14aeec25da0eb1559a8489b78d5b2b14c83be157680c67ad0bb"
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@valibot/valibot@^1.1.0"
+    ]
   }
 }

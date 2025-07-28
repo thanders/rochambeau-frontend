@@ -1,39 +1,44 @@
 import { JSX } from "preact";
-import { css, keyframes } from "twind/css";
-import { apply, tw } from "twind";
+import { tw } from "twind";
 
-const buttonClasses =
-  "px-4 py-2 text-sm font-semibold text-white bg-blue-500 rounded";
+type Variant = "primary" | "secondary" | "success" | "danger" | "warning";
 
-export function Button(props: JSX.HTMLAttributes<HTMLButtonElement>) {
-  return <button {...props} class={`${buttonClasses} ${props.class || ""}`} />;
+const baseClasses =
+  "inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-150";
+
+const variantClasses: Record<Variant, string> = {
+  primary: "text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500",
+  secondary: "text-white bg-gray-600 hover:bg-gray-700 focus:ring-gray-500",
+  success: "text-white bg-green-600 hover:bg-green-700 focus:ring-green-500",
+  danger: "text-white bg-red-600 hover:bg-red-700 focus:ring-red-500",
+  warning: "text-black bg-yellow-400 hover:bg-yellow-500 focus:ring-yellow-300",
+};
+
+interface ButtonProps
+  extends JSX.HTMLAttributes<HTMLButtonElement | HTMLAnchorElement> {
+  variant?: Variant;
+  href?: string; // Optional - presence triggers rendering <a> instead of <button>
 }
 
-export function ButtonLink(props: JSX.HTMLAttributes<HTMLAnchorElement>) {
-  return <a {...props} class={`${buttonClasses} ${props.class || ""}`} />;
-}
-
-const rainbowBackgroundKeyframes = keyframes({
-  "0%": { backgroundPosition: "0% 50%" },
-  "100%": { backgroundPosition: "100% 50%" },
-});
-const rainbowBackground = css`
-background: linear-gradient(to right, 
-  #ff0080, #ff3d4d, #ff6844, #ff8c00, #f1c40f, #2ecc71, #3498db, #8e44ad, #ff0080, #ff0080);
-background-size: 2000% 100%;
-animation: ${rainbowBackgroundKeyframes} 7s linear infinite;
-color: #fff;
-`;
-
-export function ButtonLinkMovingRainbow(
-  props: JSX.HTMLAttributes<HTMLAnchorElement>,
+export function Button(
+  { variant = "primary", class: className = "", href, ...props }: ButtonProps,
 ) {
+  const classes = tw(`${baseClasses} ${variantClasses[variant]} ${className}`);
+
+  if (href) {
+    return (
+      <a
+        {...(props as JSX.HTMLAttributes<HTMLAnchorElement>)}
+        href={href}
+        class={classes}
+      />
+    );
+  }
+
   return (
-    <a
-      {...props}
-      class={tw`px-4 py-2 text-sm font-semibold text-white rounded ${rainbowBackground} ${
-        props.class || ""
-      }`}
+    <button
+      {...(props as JSX.HTMLAttributes<HTMLButtonElement>)}
+      class={classes}
     />
   );
 }
