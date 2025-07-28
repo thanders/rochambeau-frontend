@@ -2,7 +2,6 @@ import { Game } from "./types.ts";
 
 export type GameState = GameStateInProgress | GameStateTie | GameStateWin;
 
-
 export interface GameStateInProgress {
   state: "in_progress";
   pendingPlayerId: string | null; // Indicates whose choice is still needed
@@ -24,7 +23,7 @@ export function analyzeGame(game: Game): GameState {
     initiatorChoice,
     opponentChoice,
     result, // This comes from determineWinner.ts
-    state,  // This is set in make-move.ts
+    state, // This is set in make-move.ts
   } = game;
 
   // 1. If the game is already in a final state ("finished")

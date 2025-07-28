@@ -9,7 +9,8 @@ export function Header(props: { user: User | null }) {
     <>
       <div class={tw`flex justify-between items-center`}>
         {/* Added a link around the title to go back to the root page */}
-        <a href="/" class={tw`no-underline text-current`}> {/* text-current prevents link color change */}
+        <a href="/" class={tw`no-underline text-current`}>
+          {/* text-current prevents link color change */}
           <h1 class={tw`text-4xl font-bold`}>Rock, Paper, Scissors!</h1>
         </a>
       </div>

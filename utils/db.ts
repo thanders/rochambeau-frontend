@@ -12,7 +12,7 @@ export async function getAndDeleteOauthSession(
 }
 
 export async function setOauthSession(session: string, value: OauthSession) {
-  console.log("set 0auth_session", session, value)
+  console.log("set 0auth_session", session, value);
   await kv.set(["oauth_sessions", session], value);
 }
 
@@ -68,7 +68,9 @@ export async function addMockUserOnline(user: User) {
 export async function addMockUserOnlineTest(user: User) {
   const now = new Date().toISOString();
   // Generate a unique session ID for this mock user
-  const mockSessionId = `mock_session_${user.id}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`; // More robust ID
+  const mockSessionId = `mock_session_${user.id}_${Date.now()}_${
+    Math.random().toString(36).substring(2, 9)
+  }`; // More robust ID
 
   await kv.atomic()
     .set(["users", user.id], user) // Store the user object by its ID
@@ -87,17 +89,20 @@ export async function setGame(game: Game, versionstamp?: string) {
   if (versionstamp) {
     ao.check({ key: ["games", game.id], versionstamp });
   }
+  const now = new Date().getTime();
   const res = await ao
     .set(["games", game.id], game)
     .set(["games_by_user", game.initiator.id, game.id], game)
     .set(["games_by_user", game.opponent.id, game.id], game)
-    .set(["games_by_user_updated", game.initiator.id], true)
-    .set(["games_by_user_updated", game.opponent.id], true)
+    .set(["games_by_user_updated", game.initiator.id], now)
+    .set(["games_by_user_updated", game.opponent.id], now)
     .commit();
   return res.ok;
 }
 
-export async function listPreviouslyPlayedUsers(currentUserId: string): Promise<User[]> {
+export async function listPreviouslyPlayedUsers(
+  currentUserId: string,
+): Promise<User[]> {
   const previouslyPlayedUsers: Record<string, User> = {}; // Use a record to store unique users
   const iter = kv.list<Game>({ prefix: ["games_by_user", currentUserId] });
 
@@ -121,12 +126,14 @@ export async function listGamesByPlayer(userId: string): Promise<Game[]> {
   const games: Game[] = [];
   const iter = kv.list<Game>({ prefix: ["games_by_user", userId] });
   for await (const { value } of iter) {
-    if (value.state === "in_progress") { games.push(value); } 
+    if (value.state === "in_progress") games.push(value);
   }
   return games;
 }
 
-export async function getAllGamesByPlayerForStats(userId: string): Promise<Game[]> {
+export async function getAllGamesByPlayerForStats(
+  userId: string,
+): Promise<Game[]> {
   const games: Game[] = [];
   const iter = kv.list<Game>({ prefix: ["games_by_user", userId] });
   for await (const { value } of iter) {
@@ -137,7 +144,7 @@ export async function getAllGamesByPlayerForStats(userId: string): Promise<Game[
 
 export async function getGame(id: string): Promise<Game | null> {
   const responseGame = await kv.get<Game>(["games", id]);
-  if(!responseGame) return null;
+  if (!responseGame) return null;
   return responseGame.value;
 }
 
@@ -156,15 +163,29 @@ export function subscribeGame(
 
   (async () => {
     while (true) {
-      const x = await reader.read();
-      if (x.done) {
-        console.log("subscribeGame: Subscription stream closed");
-        return;
-      }
+      try { // <--- ADD TRY BLOCK HERE
+        const x = await reader.read();
+        if (x.done) {
+          console.log(
+            "subscribeGame: Subscription stream closed (from x.done)",
+          );
+          return;
+        }
 
-      const [game] = x.value!;
-      if (game.value) {
-        cb(game.value as Game);
+        for (const entry of x.value) {
+          if (entry.value !== null) {
+            cb(entry.value as Game);
+          } else {
+            console.log(`Key ["games", "${id}"] was deleted or became null.`);
+            // You might even want a specific callback for deletion: cb(null);
+          }
+        }
+      } catch (error) { // <--- CATCH ANY ERROR
+        console.error(
+          `[subscribeGame ERROR] Stream encountered an error for game ${id}:`,
+          error,
+        );
+        break; // Stop the loop on error
       }
     }
   })();
@@ -174,23 +195,50 @@ export function subscribeGame(
   };
 }
 
+type UnsubscribeFunction = () => void;
+
 export function subscribeGamesByPlayer(
   userId: string,
   cb: (list: Game[]) => void,
-) {
+): UnsubscribeFunction {
   const stream = kv.watch([["games_by_user_updated", userId]]);
   const reader = stream.getReader();
 
   (async () => {
     while (true) {
-      const x = await reader.read();
-      if (x.done) {
-        console.log("subscribeGamesByPlayer: Subscription stream closed");
-        return;
-      }
+      try {
+        const x = await reader.read();
+        if (x.done) {
+          console.log(
+            "subscribeGamesByPlayer: Subscription stream closed (from x.done)",
+          );
+          return;
+        }
 
-      const games = await listGamesByPlayer(userId);
-      cb(games);
+        // It's good practice to also ensure x.value is not empty for KvEntry[]
+        // Though for a single key watch, it should usually have one entry on change.
+        if (x.value && x.value.length > 0) {
+          // No need to check x.value[0].value here since it's just a boolean flag.
+          // But if there were multiple keys watched, you'd iterate.
+        }
+
+        const games = await listGamesByPlayer(userId);
+        console.log(
+          `[DEBUG subscribeGamesByPlayer] listGamesByPlayer returned:`,
+          games,
+        ); // Add this log
+        cb(games);
+      } catch (error) { // <--- CATCH ANY ERROR
+        console.error(
+          `[subscribeGamesByPlayer ERROR] Stream encountered an error for user ${userId}:`,
+          error,
+        );
+        // Decide how to handle this:
+        // - You might want to break the loop to stop trying to read from a broken stream.
+        // - Or re-throw if you want the outer stream to also propagate the error.
+        // For a background watcher, breaking is often fine.
+        break; // Stop the loop on error
+      }
     }
   })();
 

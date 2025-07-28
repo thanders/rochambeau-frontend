@@ -18,11 +18,22 @@ const rainbowBackgroundKeyframes = keyframes({
   "100%": { backgroundPosition: "100% 50%" },
 });
 const rainbowBackground = css`
-background: linear-gradient(to right, 
-  #ff0080, #ff3d4d, #ff6844, #ff8c00, #f1c40f, #2ecc71, #3498db, #8e44ad, #ff0080, #ff0080);
-background-size: 2000% 100%;
-animation: ${rainbowBackgroundKeyframes} 7s linear infinite;
-color: #fff;
+  background: linear-gradient(
+    to right,
+    #ff0080,
+    #ff3d4d,
+    #ff6844,
+    #ff8c00,
+    #f1c40f,
+    #2ecc71,
+    #3498db,
+    #8e44ad,
+    #ff0080,
+    #ff0080
+  );
+  background-size: 2000% 100%;
+  animation: ${rainbowBackgroundKeyframes} 7s linear infinite;
+  color: #fff;
 `;
 
 export function ButtonLinkMovingRainbow(

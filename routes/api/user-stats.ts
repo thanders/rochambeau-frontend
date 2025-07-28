@@ -1,6 +1,9 @@
 import { Handlers } from "$fresh/server.ts";
 import { State } from "🛠️/types.ts";
-import { getUserBySession, getAllGamesByPlayerForStats } from "../../utils/db.ts";
+import {
+  getAllGamesByPlayerForStats,
+  getUserBySession,
+} from "../../utils/db.ts";
 
 export const handler: Handlers<undefined, State> = {
   async GET(req, ctx) {

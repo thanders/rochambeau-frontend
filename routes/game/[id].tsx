@@ -11,18 +11,18 @@ interface Data {
 }
 
 export async function handler(req: Request, ctx: HandlerContext<Data, State>) {
-    const [game, user] = await Promise.all([
+  const [game, user] = await Promise.all([
     getGame(ctx.params.id),
     getUserBySession(ctx.state.session ?? ""),
   ]);
 
-    console.log("[/game/:id handler] Fetched game:", game);
+  console.log("[/game/:id handler] Fetched game:", game);
   console.log("[/game/:id handler] Fetched user:", user ? user.login : "N/A");
 
   if (!user) {
     return new Response("User not found", { status: 404 });
   }
-  
+
   if (!game) {
     return new Response("Game not found", { status: 404 });
   }
@@ -30,7 +30,7 @@ export async function handler(req: Request, ctx: HandlerContext<Data, State>) {
   // Return render with real game and user
   return ctx.render({
     user,
-    game
+    game,
   });
 }
 

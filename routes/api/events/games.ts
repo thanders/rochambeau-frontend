@@ -10,17 +10,28 @@ export const handler: Handlers<undefined, State> = {
     const user = await getUserBySession(ctx.state.session);
     if (!user) return new Response("Not logged in", { status: 401 });
 
-    let cleanup: () => void;
+    // Initialize cleanup to a no-op function
+    let cleanup: () => void = () => {}; // <-- FIX: Initialize to empty function
 
     const body = new ReadableStream({
       start(controller) {
+        console.log(`[EventSource] Client connected for user: ${user.id}`);
         controller.enqueue(`retry: 1000\n\n`);
+
+        // Assign the actual cleanup function
         cleanup = subscribeGamesByPlayer(user.id, (games) => {
+          console.log(
+            `[EventSource] Sending games update for user ${user.id}:`,
+            games,
+          );
           const data = JSON.stringify(games);
           controller.enqueue(`data: ${data}\n\n`);
         });
       },
       cancel() {
+        console.log(`[EventSource] Client disconnected for user: ${user.id}`);
+        // Now 'cleanup' will always be a function, even if it's the no-op.
+        // It won't throw 'undefined is not a function'.
         cleanup();
       },
     });
