@@ -6,6 +6,7 @@ import {
 getAllGamesByPlayerForStats,
   getUserBySession,
   listGamesByPlayer,
+  listPreviouslyPlayedUsers,
   listRecentlySignedInUsers,
 } from "🛠️/db.ts";
 
@@ -31,7 +32,7 @@ export async function handler(req: Request, ctx: HandlerContext<Data, State>) {
   if (!user) return ctx.render(null);
 
   const [ users, allGamesForStats, games] = await Promise.all([
-    listRecentlySignedInUsers(),
+    listPreviouslyPlayedUsers(user.id),
     getAllGamesByPlayerForStats(user.id),
     listGamesByPlayer(user.id)
   ]);

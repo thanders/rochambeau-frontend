@@ -139,14 +139,16 @@ function GameListItem(
     ? game.opponent
     : game.initiator;
 
-  const currentPlayersTurn = currentUser.id == game.pendingPlayerId;
+const isCurrentUserInitiator = currentUser.id === game.initiator.id;
 
-  const state = currentPlayersTurn ? "Your Turn" : "Opponent's Turn";
+const myChoice = isCurrentUserInitiator ? game.initiatorChoice : game.opponentChoice;
+
+  const gameMoveText = myChoice ? "Waiting for Opponent": "Make a move";
 
   return (
     <li
       class={tw`flex items-center ${
-        currentPlayersTurn && rainbowBackground
+        isCurrentUserInitiator && game.initiatorChoice && rainbowBackground
       } px-4 py-2 border-t`}
     >
       <img
@@ -159,16 +161,15 @@ function GameListItem(
           You vs <UserNameHorizontal user={otherPlayer} />
         </p>
         <p class="text-sm text-gray-600">
-          {state}
+          {gameMoveText}
         </p>
       </div>
-      {currentUser.id == game.pendingPlayerId
-        ? (
+      {myChoice
+        ?  <ButtonLink href={`/game/${game.id}`}>Observe</ButtonLink> : (
           <ButtonLinkMovingRainbow href={`/game/${game.id}`}>
             Make Move!
           </ButtonLinkMovingRainbow>
-        )
-        : <ButtonLink href={`/game/${game.id}`}>Observe</ButtonLink>}
+        )}
     </li>
   );
 }

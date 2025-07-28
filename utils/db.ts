@@ -97,6 +97,26 @@ export async function setGame(game: Game, versionstamp?: string) {
   return res.ok;
 }
 
+export async function listPreviouslyPlayedUsers(currentUserId: string): Promise<User[]> {
+  const previouslyPlayedUsers: Record<string, User> = {}; // Use a record to store unique users
+  const iter = kv.list<Game>({ prefix: ["games_by_user", currentUserId] });
+
+  for await (const { value: game } of iter) {
+    // We are looking for games where the current user played, and the game is finished.
+    if (game.state === "finished") {
+      // Determine the other player in this finished game
+      const otherPlayer = game.initiator.id === currentUserId
+        ? game.opponent
+        : game.initiator;
+
+      // Add the other player to our unique list
+      previouslyPlayedUsers[otherPlayer.id] = otherPlayer;
+    }
+  }
+  // Convert the record of unique users back to an array
+  return Object.values(previouslyPlayedUsers);
+}
+
 export async function listGamesByPlayer(userId: string): Promise<Game[]> {
   const games: Game[] = [];
   const iter = kv.list<Game>({ prefix: ["games_by_user", userId] });
