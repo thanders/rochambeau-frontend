@@ -1,3 +1,17 @@
+export {};
+
+declare global {
+  interface DataLayerEvent {
+    event: string;
+    challengedBy?: string;
+    [key: string]: unknown;
+  }
+
+  interface GlobalThis {
+    dataLayer: DataLayerEvent[];
+  }
+}
+
 export interface State {
   session: string | undefined;
 }

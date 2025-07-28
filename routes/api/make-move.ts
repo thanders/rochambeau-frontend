@@ -18,7 +18,6 @@ export const handler: Handlers<undefined, State> = {
 
     const body = await req.json();
     const choice = body.choice;
-    console.log("make-move choice ", choice);
     if (!["rock", "paper", "scissors"].includes(choice)) {
       return new Response("Invalid choice", { status: 400 });
     }
